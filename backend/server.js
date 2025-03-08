@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const employeeRoutes = require('./routes/employees');
+const companyRoutes = require('./routes/companies');
 
 // Crea un'app Express
 const app = express();
@@ -24,6 +25,7 @@ app.use(bodyParser.json());
 
 // Usa le rotte per i dipendenti
 app.use('/employees', employeeRoutes);
+app.use('/companies', companyRoutes);
 
 // Avvia il server
 app.listen(port, () => {
