@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, Text, Button, View, StyleSheet, ActivityIndicator } from 'react-native';
+import { FlatList, Text, Button, View, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; // Per le icone
 
 export default function EmployeeListScreen({ navigation }) {
   const [employees, setEmployees] = useState([]);
@@ -24,6 +25,26 @@ export default function EmployeeListScreen({ navigation }) {
     };
     fetchEmployees();
   }, []);
+
+  const handleDelete = async (employeeId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/employees/${employeeId}`, {
+        method: 'DELETE', // Metodo DELETE
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete employee');
+      }
+
+      // Se la richiesta è andata a buon fine, rimuoviamo l'impiegato dalla lista
+      setEmployees((prevEmployees) =>
+        prevEmployees.filter((employee) => employee._id !== employeeId)
+      );
+    } catch (error) {
+      console.error('Error deleting employee:', error);
+      setError('Failed to delete employee');
+    }
+  };
 
   if (loading) {
     return (
@@ -59,6 +80,10 @@ export default function EmployeeListScreen({ navigation }) {
             <Text style={styles.employeeName}>{item.name}</Text>
             <Text style={styles.employeeRole}>{item.role}</Text>
             <Text style={styles.employeeHours}>{item.workingHours}</Text>
+
+            <TouchableOpacity onPress={() => handleDelete(item._id)} style={styles.deleteButton}>
+              <Ionicons name="trash-outline" size={24} color="red" />
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -71,24 +96,33 @@ export default function EmployeeListScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
+    backgroundColor: '#f5f5f5',
   },
   header: {
     fontSize: 24,
+    fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
   employeeCard: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 15,
-    padding: 10,
-    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   employeeName: {
     fontSize: 18,
     fontWeight: 'bold',
+    flex: 1,
   },
   employeeRole: {
     fontSize: 16,
@@ -98,8 +132,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999',
   },
+  deleteButton: {
+    padding: 5,
+  },
   error: {
     color: 'red',
     marginBottom: 20,
+    textAlign: 'center',
   },
 });

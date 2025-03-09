@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, Text, Button, View, StyleSheet, ActivityIndicator } from 'react-native';
+import { FlatList, Text, Button, View, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; // Per le icone
 
 export default function CompaniesListScreen({ navigation }) {
   const [companies, setCompanies] = useState([]);
@@ -24,6 +25,26 @@ export default function CompaniesListScreen({ navigation }) {
     };
     fetchCompanies();
   }, []);
+
+  const handleDelete = async (companyId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/companies/${companyId}`, {
+        method: 'DELETE', // Metodo DELETE
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete company');
+      }
+
+      // Se la richiesta è andata a buon fine, rimuoviamo la compagnia dalla lista
+      setCompanies((prevCompanies) =>
+        prevCompanies.filter((company) => company._id !== companyId)
+      );
+    } catch (error) {
+      console.error('Error deleting company:', error);
+      setError('Failed to delete company');
+    }
+  };
 
   if (loading) {
     return (
@@ -57,6 +78,9 @@ export default function CompaniesListScreen({ navigation }) {
         renderItem={({ item }) => (
           <View style={styles.companyCard}>
             <Text style={styles.companyName}>{item.name}</Text>
+            <TouchableOpacity onPress={() => handleDelete(item._id)} style={styles.deleteButton}>
+              <Ionicons name="trash-outline" size={24} color="red" />
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -69,35 +93,40 @@ export default function CompaniesListScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
+    backgroundColor: '#f5f5f5',
   },
   header: {
     fontSize: 24,
+    fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
-  employeeCard: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 15,
-    padding: 10,
-    width: '100%',
+  companyCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  employeeName: {
+  companyName: {
     fontSize: 18,
     fontWeight: 'bold',
+    flex: 1,
   },
-  employeeRole: {
-    fontSize: 16,
-    color: '#666',
-  },
-  employeeHours: {
-    fontSize: 14,
-    color: '#999',
+  deleteButton: {
+    padding: 5,
   },
   error: {
     color: 'red',
     marginBottom: 20,
+    textAlign: 'center',
   },
 });
