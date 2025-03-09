@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, Text, Button, View, StyleSheet, ActivityIndicator } from 'react-native';
 
-export default function EmployeeListScreen({ navigation }) {
-  const [employees, setEmployees] = useState([]);
+export default function CompaniesListScreen({ navigation }) {
+  const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchEmployees = async () => {
+    const fetchCompanies = async () => {
       try {
-        const response = await fetch('http://localhost:5000/employees');
+        const response = await fetch('http://localhost:5000/companies');
         if (!response.ok) {
-          throw new Error('Failed to fetch employees');
+          throw new Error('Failed to fetch companies');
         }
         const data = await response.json();
-        setEmployees(data);
+        setCompanies(data);
         setLoading(false); // Fine del caricamento
       } catch (error) {
-        console.error('Error fetching employees:', error);
-        setError('Failed to load employees'); // Gestione errore
+        console.error('Error fetching companies:', error);
+        setError('Failed to load companies'); // Gestione errore
         setLoading(false); // Fine del caricamento anche in caso di errore
       }
     };
-    fetchEmployees();
+    fetchCompanies();
   }, []);
 
   if (loading) {
@@ -41,7 +41,7 @@ export default function EmployeeListScreen({ navigation }) {
         <Button title="Retry" onPress={() => {
           setLoading(true);
           setError(null);
-          fetchEmployees();
+          fetchCompanies();
         }} />
       </View>
     );
@@ -49,21 +49,19 @@ export default function EmployeeListScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Employees</Text>
+      <Text style={styles.header}>Companies</Text>
 
       <FlatList
-        data={employees}
+        data={companies}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <View style={styles.employeeCard}>
-            <Text style={styles.employeeName}>{item.name}</Text>
-            <Text style={styles.employeeRole}>{item.role}</Text>
-            <Text style={styles.employeeHours}>{item.workingHours}</Text>
+          <View style={styles.companyCard}>
+            <Text style={styles.companyName}>{item.name}</Text>
           </View>
         )}
       />
 
-      <Button title="Add New Employee" onPress={() => navigation.navigate('AddEmployee')} />
+      <Button title="Add New Company" onPress={() => navigation.navigate('AddCompany')} />
     </View>
   );
 }

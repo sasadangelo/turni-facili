@@ -6,10 +6,11 @@ const companyService = require('../services/companyService');
 router.post('/', async (req, res) => {
   try {
     const { name } = req.body;
-    const company = await companyService.createCompany(name);
-    res.status(201).json(company);
+    const newCompany = await companyService.createCompany(name);
+    res.status(201).json({ success: true, company: newCompany });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -19,7 +20,7 @@ router.get('/', async (req, res) => {
     const companies = await companyService.getAllCompanies();
     res.json(companies);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

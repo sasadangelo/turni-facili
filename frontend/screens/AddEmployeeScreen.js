@@ -1,10 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, TextInput, Button, View, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 export default function AddEmployeeScreen({ navigation }) {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [workingHours, setWorkingHours] = useState('');
+  const [company, setCompany] = useState('');
+  const [companies, setCompanies] = useState([]);
+
+  useEffect(() => {
+    // Fetch companies from the backend
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/companies');  // Endpoint per ottenere la lista delle company
+        const data = await response.json();
+        setCompanies(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
 
   const addEmployee = async () => {
     const response = await fetch('http://localhost:5000/employees', {  // Assicurati che il server backend sia in esecuzione su questa porta
@@ -16,6 +34,7 @@ export default function AddEmployeeScreen({ navigation }) {
         name,
         role,
         workingHours,
+        company,  // Associa il dipendente alla company selezionata
       }),
     });
 
@@ -23,7 +42,7 @@ export default function AddEmployeeScreen({ navigation }) {
     console.log(data);
 
     if (data.success) {
-      navigation.navigate('EmployeeList');  // Naviga verso la lista dei dipendenti
+      navigation.navigate('Employees');  // Naviga verso la lista dei dipendenti
     }
   };
 
@@ -50,7 +69,19 @@ export default function AddEmployeeScreen({ navigation }) {
         onChangeText={setWorkingHours}
       />
 
-      <Button title="Add Employee" onPress={addEmployee} />
+      <Text style={styles.label}>Select Company:</Text>
+      <Picker
+        selectedValue={company}
+        style={styles.picker}
+        onValueChange={(itemValue) => setCompany(itemValue)}
+      >
+        <Picker.Item label="Select a company" value="" />
+        {companies.map((comp) => (
+          <Picker.Item key={comp.id} label={comp.name} value={comp._id} />
+        ))}
+      </Picker>
+
+      <Button title="Add Employee" onPress={addEmployee} disabled={!company} />
     </View>
   );
 }
@@ -73,5 +104,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 15,
     paddingLeft: 10,
+  },
+  label: {
+    fontSize: 16,
+    marginTop: 10,
+  },
+  picker: {
+    height: 50,
+    width: '80%',
+    marginBottom: 15,
   },
 });
