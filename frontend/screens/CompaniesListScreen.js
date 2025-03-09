@@ -26,6 +26,23 @@ export default function CompaniesListScreen({ navigation }) {
     fetchCompanies();
   }, []);
 
+  const handleEdit = async (companyId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/companies/${companyId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch company details');
+      }
+      const data = await response.json();
+
+      // Naviga verso lo schermo di modifica passando i dettagli della compagnia
+      navigation.navigate('EditCompany', { company: data });
+
+    } catch (error) {
+      console.error('Error fetching company details:', error);
+      setError('Failed to fetch company details');
+    }
+  };
+
   const handleDelete = async (companyId) => {
     try {
       const response = await fetch(`http://localhost:5000/companies/${companyId}`, {
@@ -78,6 +95,9 @@ export default function CompaniesListScreen({ navigation }) {
         renderItem={({ item }) => (
           <View style={styles.companyCard}>
             <Text style={styles.companyName}>{item.name}</Text>
+            <TouchableOpacity onPress={() => handleEdit(item._id)} style={styles.editButton}>
+              <Ionicons name="create-outline" size={24} color="gray" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => handleDelete(item._id)} style={styles.deleteButton}>
               <Ionicons name="trash-outline" size={24} color="red" />
             </TouchableOpacity>
@@ -120,6 +140,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
+  },
+  editButton: {
+    padding: 5,
+    /*backgroundColor: '#4CAF50',*/
+    /*borderRadius: 5,*/
+    marginRight: 10,
   },
   deleteButton: {
     padding: 5,
