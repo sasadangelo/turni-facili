@@ -8,6 +8,7 @@ import EmployeeListScreen from './screens/EmployeeListScreen';
 import AddCompanyScreen from './screens/AddCompanyScreen';
 import CompaniesListScreen from './screens/CompaniesListScreen';
 import EditCompanyScreen from './screens/EditCompanyScreen';
+import EditEmployeeScreen from './screens/EditEmployeeScreen';
 import { Ionicons } from '@expo/vector-icons'; // Per le icone del menu
 
 const Stack = createStackNavigator();
@@ -19,6 +20,7 @@ function EmployeeStack() {
     <Stack.Navigator>
       <Stack.Screen name="Employees" component={EmployeeListScreen} />
       <Stack.Screen name="AddEmployee" component={AddEmployeeScreen} />
+      <Stack.Screen name="EditEmployee" component={EditEmployeeScreen} />
     </Stack.Navigator>
   );
 }

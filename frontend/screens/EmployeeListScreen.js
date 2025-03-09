@@ -7,24 +7,42 @@ export default function EmployeeListScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/employees');
-        if (!response.ok) {
-          throw new Error('Failed to fetch employees');
-        }
-        const data = await response.json();
-        setEmployees(data);
-        setLoading(false); // Fine del caricamento
-      } catch (error) {
-        console.error('Error fetching employees:', error);
-        setError('Failed to load employees'); // Gestione errore
-        setLoading(false); // Fine del caricamento anche in caso di errore
+  const fetchEmployees = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/employees');
+      if (!response.ok) {
+        throw new Error('Failed to fetch employees');
       }
-    };
+      const data = await response.json();
+      setEmployees(data);
+      setLoading(false); // Fine del caricamento
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      setError('Failed to load employees'); // Gestione errore
+      setLoading(false); // Fine del caricamento anche in caso di errore
+    }
+  };
+
+  useEffect(() => {
     fetchEmployees();
   }, []);
+
+  const handleEdit = async (employeeId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/employees/${employeeId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch company details');
+      }
+      const data = await response.json();
+
+      // Naviga verso lo schermo di modifica passando i dettagli della compagnia
+      navigation.navigate('EditEmployee', { employee: data, refreshEmployees: fetchEmployees });
+
+    } catch (error) {
+      console.error('Error fetching employee details:', error);
+      setError('Failed to fetch employee details');
+    }
+  };
 
   const handleDelete = async (employeeId) => {
     try {
@@ -37,9 +55,7 @@ export default function EmployeeListScreen({ navigation }) {
       }
 
       // Se la richiesta è andata a buon fine, rimuoviamo l'impiegato dalla lista
-      setEmployees((prevEmployees) =>
-        prevEmployees.filter((employee) => employee._id !== employeeId)
-      );
+      fetchEmployees();
     } catch (error) {
       console.error('Error deleting employee:', error);
       setError('Failed to delete employee');
@@ -78,9 +94,9 @@ export default function EmployeeListScreen({ navigation }) {
         renderItem={({ item }) => (
           <View style={styles.employeeCard}>
             <Text style={styles.employeeName}>{item.name}</Text>
-            <Text style={styles.employeeRole}>{item.role}</Text>
-            <Text style={styles.employeeHours}>{item.workingHours}</Text>
-
+            <TouchableOpacity onPress={() => handleEdit(item._id)} style={styles.editButton}>
+              <Ionicons name="create-outline" size={24} color="gray" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => handleDelete(item._id)} style={styles.deleteButton}>
               <Ionicons name="trash-outline" size={24} color="red" />
             </TouchableOpacity>
@@ -123,14 +139,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
-  },
-  employeeRole: {
-    fontSize: 16,
-    color: '#666',
-  },
-  employeeHours: {
-    fontSize: 14,
-    color: '#999',
   },
   deleteButton: {
     padding: 5,

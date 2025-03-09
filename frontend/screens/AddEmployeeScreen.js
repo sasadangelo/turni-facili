@@ -9,18 +9,18 @@ export default function AddEmployeeScreen({ navigation }) {
   const [company, setCompany] = useState('');
   const [companies, setCompanies] = useState([]);
 
-  useEffect(() => {
-    // Fetch companies from the backend
-    const fetchCompanies = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/companies');  // Endpoint per ottenere la lista delle company
-        const data = await response.json();
-        setCompanies(data);
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-      }
-    };
+  // Fetch companies from the backend
+  const fetchCompanies = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/companies');  // Endpoint per ottenere la lista delle company
+      const data = await response.json();
+      setCompanies(data);
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchCompanies();
   }, []);
 

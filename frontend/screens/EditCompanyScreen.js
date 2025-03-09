@@ -5,7 +5,6 @@ export default function EditCompanyScreen({ route, navigation }) {
   const { company, refreshCompanies } = route.params;
 
   const [name, setName] = useState(company.name);
-  const [details, setDetails] = useState(company.details);
 
   const handleSave = async () => {
     try {
