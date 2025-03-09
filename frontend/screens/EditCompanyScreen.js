@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, TextInput, View, Button, StyleSheet } from 'react-native';
 
 export default function EditCompanyScreen({ route, navigation }) {
-  const { company } = route.params; // Recuperiamo i dettagli della compagnia
+  const { company, refreshCompanies } = route.params;
 
   const [name, setName] = useState(company.name);
   const [details, setDetails] = useState(company.details);
@@ -22,6 +22,7 @@ export default function EditCompanyScreen({ route, navigation }) {
       }
 
       // Dopo l'aggiornamento, naviga indietro alla lista delle compagnie
+      refreshCompanies();
       navigation.goBack();
 
     } catch (error) {

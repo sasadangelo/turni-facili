@@ -7,22 +7,23 @@ export default function CompaniesListScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/companies');
-        if (!response.ok) {
-          throw new Error('Failed to fetch companies');
-        }
-        const data = await response.json();
-        setCompanies(data);
-        setLoading(false); // Fine del caricamento
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-        setError('Failed to load companies'); // Gestione errore
-        setLoading(false); // Fine del caricamento anche in caso di errore
+  const fetchCompanies = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/companies');
+      if (!response.ok) {
+        throw new Error('Failed to fetch companies');
       }
-    };
+      const data = await response.json();
+      setCompanies(data);
+      setLoading(false); // Fine del caricamento
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      setError('Failed to load companies'); // Gestione errore
+      setLoading(false); // Fine del caricamento anche in caso di errore
+    }
+  };
+
+  useEffect(() => {
     fetchCompanies();
   }, []);
 
@@ -35,7 +36,7 @@ export default function CompaniesListScreen({ navigation }) {
       const data = await response.json();
 
       // Naviga verso lo schermo di modifica passando i dettagli della compagnia
-      navigation.navigate('EditCompany', { company: data });
+      navigation.navigate('EditCompany', { company: data, refreshCompanies: fetchCompanies });
 
     } catch (error) {
       console.error('Error fetching company details:', error);
