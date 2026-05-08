@@ -1,0 +1,14 @@
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 5001
+
+# MongoDB Configuration
+mongodb:
+  host: "mongodbcluster.ofer3.mongodb.net"
+  username: "sasadangelo"
+  database: "turni-facili"
+  options:
+    retryWrites: true
+    w: "majority"
+    appName: "MongoDBCluster"
