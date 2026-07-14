@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, Text, Button, View, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Per le icone
+import { apiBaseUrl } from '../config';
 
 export default function CompaniesListScreen({ navigation }) {
   const [companies, setCompanies] = useState([]);
@@ -9,7 +10,7 @@ export default function CompaniesListScreen({ navigation }) {
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch('http://localhost:5001/companies');
+      const response = await fetch(`${apiBaseUrl}/companies`);
       if (!response.ok) {
         throw new Error('Failed to fetch companies');
       }
@@ -29,7 +30,7 @@ export default function CompaniesListScreen({ navigation }) {
 
   const handleEdit = async (companyId) => {
     try {
-      const response = await fetch(`http://localhost:5001/companies/${companyId}`);
+      const response = await fetch(`${apiBaseUrl}/companies/${companyId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch company details');
       }
@@ -46,7 +47,7 @@ export default function CompaniesListScreen({ navigation }) {
 
   const handleDelete = async (companyId) => {
     try {
-      const response = await fetch(`http://localhost:5001/companies/${companyId}`, {
+      const response = await fetch(`${apiBaseUrl}/companies/${companyId}`, {
         method: 'DELETE', // Metodo DELETE
       });
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, TextInput, View, Button, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { apiBaseUrl } from '../config';
 
 export default function EditEmployeeScreen({ route, navigation }) {
   const { employee, refreshEmployees } = route.params;
@@ -16,7 +17,7 @@ export default function EditEmployeeScreen({ route, navigation }) {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const response = await fetch('http://localhost:5001/companies');
+        const response = await fetch(`${apiBaseUrl}/companies`);
         const data = await response.json();
         setCompanies(data);
       } catch (error) {
@@ -45,7 +46,7 @@ export default function EditEmployeeScreen({ route, navigation }) {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/employees/${employee._id}`, {
+      const response = await fetch(`${apiBaseUrl}/employees/${employee._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

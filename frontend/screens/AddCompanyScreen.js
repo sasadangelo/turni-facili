@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Text, TextInput, Button, View, StyleSheet } from 'react-native';
+import { apiBaseUrl } from '../config';
 
 export default function AddCompanyScreen({ navigation }) {
   const [name, setName] = useState('');
 
   const addCompany = async () => {
-    const response = await fetch('http://localhost:5001/companies', {  // Assicurati che il server backend sia in esecuzione su questa porta
+    const response = await fetch(`${apiBaseUrl}/companies`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

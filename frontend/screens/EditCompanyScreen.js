@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Text, TextInput, View, Button, StyleSheet } from 'react-native';
+import { apiBaseUrl } from '../config';
 
 export default function EditCompanyScreen({ route, navigation }) {
   const { company, refreshCompanies } = route.params;
@@ -8,7 +9,7 @@ export default function EditCompanyScreen({ route, navigation }) {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/companies/${company._id}`, {
+      const response = await fetch(`${apiBaseUrl}/companies/${company._id}`, {
         method: 'PUT', // Metodo PUT per aggiornare la compagnia
         headers: {
           'Content-Type': 'application/json',

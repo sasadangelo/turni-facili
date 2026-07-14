@@ -1,0 +1,4 @@
+# Backend API Configuration
+api:
+  host: "localhost"
+  port: 5001

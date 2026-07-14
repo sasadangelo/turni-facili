@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FlatList, Text, Button, View, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons'; // Per le icone
+import { apiBaseUrl } from '../config';
 
 export default function EmployeeListScreen({ navigation }) {
   const [employees, setEmployees] = useState([]);
@@ -12,7 +13,7 @@ export default function EmployeeListScreen({ navigation }) {
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch('http://localhost:5001/companies');
+      const response = await fetch(`${apiBaseUrl}/companies`);
       if (!response.ok) {
         throw new Error('Failed to fetch companies');
       }
@@ -32,7 +33,7 @@ export default function EmployeeListScreen({ navigation }) {
 
   const fetchEmployees = async (companyId) => {
     try {
-      const response = await fetch(`http://localhost:5001/employees?companyId=${companyId}`);
+      const response = await fetch(`${apiBaseUrl}/employees?companyId=${companyId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch employees');
       }
@@ -60,7 +61,7 @@ export default function EmployeeListScreen({ navigation }) {
 
   const handleEdit = async (employeeId) => {
     try {
-      const response = await fetch(`http://localhost:5001/employees/${employeeId}`);
+      const response = await fetch(`${apiBaseUrl}/employees/${employeeId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch company details');
       }
@@ -77,7 +78,7 @@ export default function EmployeeListScreen({ navigation }) {
 
   const handleDelete = async (employeeId) => {
     try {
-      const response = await fetch(`http://localhost:5001/employees/${employeeId}`, {
+      const response = await fetch(`${apiBaseUrl}/employees/${employeeId}`, {
         method: 'DELETE', // Metodo DELETE
       });
 
