@@ -321,4 +321,31 @@ It's not the absolute cutting-edge (that would be full TypeScript + NestJS + Pri
 
 **Focus on shipping the MVP first, then improve incrementally based on real user feedback!**
 
+---
+
+## 🧭 Additional Review (2026-07-14)
+
+A follow-up review of the actual codebase (models, routes, screens) confirms the analysis above and adds a few concrete, code-level findings — prioritized by what actually blocks real-device usage vs. what's a longer-term improvement.
+
+### Stack confirmation
+The stack choice (RN+Expo, Node/Express, MongoDB) is still appropriate for the target scale (one pharmacy / small business, few dozen employees, low event volume). No reason to change platform. The priority order below matters more than the "Should/Nice to Have" categories already listed.
+
+### Re-prioritized "Must Have" list (blocking, in order)
+1. **Hardcoded `http://localhost:5000` in every screen** (`CompaniesListScreen.js`, `EmployeeListScreen.js`, `AddEmployeeScreen.js`, etc.) — this isn't just a code-quality issue, it's a functional blocker: the app cannot be tested on a physical device via Expo Go until this is centralized into a `config.js`/env var. This should happen **before** TypeScript, state management, or testing.
+2. **No authentication** — already planned in `MVP_PLAN.md`; until it lands, any client can read/write any company's data.
+3. **No input validation** (backend and frontend) — for a shift-scheduling domain, an unvalidated `dtStart`/`dtEnd` pair can silently create an inverted or malformed shift.
+4. TypeScript, state management (Zustand/React Query), testing — valid Phase 2 items as already listed, no change needed there.
+
+### Domain-specific addition: date/time handling for pharmacy shifts
+Once the shift calendar is built, morning/afternoon/full/split-full (`intera spezzata`) shifts will require reliable overlap and duration calculations. Recommend adding a date library (`dayjs`) at that point rather than doing manual `Date` arithmetic — this is a common source of subtle scheduling bugs (off-by-one on DST changes, overlap miscalculation for split shifts).
+
+### Data model findings (Company / Employee / Event / EventType)
+- **Employee.workingHours** (free-text string, e.g. `"9-17"`) duplicates and conflicts with what `EventType` is meant to represent. Once the shift calendar (Event + EventType) is implemented, this field should be removed from `Employee` — otherwise there are two sources of truth for an employee's schedule.
+- **EventType** is well-modeled for this use case: `name` + `code` scoped per `company` lets each pharmacy define its own shift types (e.g. `MATT`, `POM`, `INT`, `INT-SPZ`) without hardcoding them, which also generalizes cleanly to future business verticals beyond pharmacies.
+- **Event** model is currently a full iCal/RRULE-style schema (`rrule`, `byweekday`, `exDates`, `uid`, `sequence`, `recurrenceId`, etc.) — significantly more complex than the simplified model already described in `MVP_PLAN.md` (`dtStart`, `dtEnd`, `employeeId`, `companyId`), and none of these recurrence fields are consumed by the frontend yet (no calendar UI exists). This is premature complexity; a simple `recurringPattern` field would cover "every Monday morning"-style recurrence without adopting the full iCal standard. Only worth the RRULE complexity if external calendar sync (Google/Outlook) is a real near-term goal.
+- **Bug:** `backend/routes/events.js` does `require("../models/event")` (lowercase) while the actual file is `Event.js`. This works on macOS (case-insensitive filesystem) but **will break on Linux/Docker in production** (case-sensitive filesystem). Fix the require path casing.
+
+### Frontend code-quality note
+`CompaniesListScreen.js` and `EmployeeListScreen.js` duplicate the same fetch/loading/error boilerplate. Before adding Event/EventType screens (a 3rd and 4th copy), extract this into a shared hook (`useApiList`) or a small API client — otherwise the duplication compounds with every new resource screen.
+
 The best stack is the one that helps you ship quickly and iterate based on user needs. Your current stack does exactly that! 🚀

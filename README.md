@@ -215,7 +215,18 @@ turni-facili/
 │   │   └── employeeService.js
 │   ├── utils/                  # Utilities
 │   │   └── logger.js           # Winston Logger
-│   ├── server.js               # Entry point
+│   ├── test/                   # Jest Tests
+│   │   ├── unit/                   # Service logic, mocked models
+│   │   │   ├── companyService.test.js
+│   │   │   └── employeeService.test.js
+│   │   └── integration/            # Full HTTP + in-memory MongoDB
+│   │       ├── setupTestDb.js
+│   │       ├── companies.test.js
+│   │       ├── employees.test.js
+│   │       ├── eventtypes.test.js
+│   │       └── events.test.js
+│   ├── app.js                  # Express app (routes + middleware)
+│   ├── server.js               # Entry point (DB connection + listen)
 │   └── package.json
 │
 ├── frontend/                   # React Native + Expo Frontend
@@ -230,12 +241,6 @@ turni-facili/
 │   ├── App.js                  # Entry point + Navigation
 │   ├── app.json                # Expo Configuration
 │   └── package.json
-│
-├── test/                       # Test Scripts
-│   └── backend/
-│       ├── test_companies.sh
-│       ├── test_employee.sh
-│       └── test_eventtypes.sh
 │
 ├── MVP_PLAN.md                 # Detailed MVP Plan
 ├── DEPLOYMENT_CHECKLIST.md     # Deployment Checklist
@@ -289,21 +294,27 @@ DELETE /eventtypes/:id     # Delete type
 
 ## 🧪 Testing
 
-### Backend Testing (with curl)
+### Backend Testing (Jest)
 
-In the `test/backend/` folder you'll find bash scripts to test the APIs:
+The backend test suite uses **Jest**, split into two levels, both under `backend/test/`:
+
+- **Unit tests** (`test/unit/`) — test the service layer (`companyService.js`, `employeeService.js`) in isolation, mocking the Mongoose models. No network, no database.
+- **Integration tests** (`test/integration/`) — use **Supertest** to call the Express app (`backend/app.js`) directly, backed by an in-memory MongoDB via **mongodb-memory-server**. No real server process or Atlas connection is needed.
 
 ```bash
-# Test Companies API
-cd test/backend
-bash test_companies.sh
+cd backend
 
-# Test Employees API
-bash test_employee.sh
+# Run everything (unit + integration)
+npm test
 
-# Test Event Types API
-bash test_eventtypes.sh
+# Run only unit tests
+npm run test:unit
+
+# Run only integration tests
+npm run test:integration
 ```
+
+Both levels run self-contained — no need to start `node server.js` or have a MongoDB Atlas connection configured first.
 
 ### Manual Testing
 

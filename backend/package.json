@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:unit": "jest test/unit",
+    "test:integration": "jest test/integration"
   },
   "author": "",
   "license": "MIT",
@@ -13,5 +15,10 @@
     "express": "^4.21.2",
     "js-yaml": "^4.1.1",
     "mongoose": "^8.12.1"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "mongodb-memory-server": "^11.2.0",
+    "supertest": "^7.2.2"
   }
 }
