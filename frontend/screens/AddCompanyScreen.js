@@ -5,7 +5,7 @@ export default function AddCompanyScreen({ navigation }) {
   const [name, setName] = useState('');
 
   const addCompany = async () => {
-    const response = await fetch('http://localhost:5000/companies', {  // Assicurati che il server backend sia in esecuzione su questa porta
+    const response = await fetch('http://localhost:5001/companies', {  // Assicurati che il server backend sia in esecuzione su questa porta
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

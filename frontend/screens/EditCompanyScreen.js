@@ -8,12 +8,12 @@ export default function EditCompanyScreen({ route, navigation }) {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/companies/${company._id}`, {
+      const response = await fetch(`http://localhost:5001/companies/${company._id}`, {
         method: 'PUT', // Metodo PUT per aggiornare la compagnia
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, details }),
+        body: JSON.stringify({ name }),
       });
 
       if (!response.ok) {

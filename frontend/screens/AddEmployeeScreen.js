@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Text, TextInput, Button, View, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-export default function AddEmployeeScreen({ navigation }) {
+export default function AddEmployeeScreen({ navigation, route }) {
+  const { companyId, refreshEmployees } = route.params || {};
+
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [workingHours, setWorkingHours] = useState('');
-  const [company, setCompany] = useState('');
+  const [company, setCompany] = useState(companyId || '');
   const [companies, setCompanies] = useState([]);
 
   // Fetch companies from the backend
   const fetchCompanies = async () => {
     try {
-      const response = await fetch('http://localhost:5000/companies');  // Endpoint per ottenere la lista delle company
+      const response = await fetch('http://localhost:5001/companies');  // Endpoint per ottenere la lista delle company
       const data = await response.json();
       setCompanies(data);
     } catch (error) {
@@ -25,7 +27,7 @@ export default function AddEmployeeScreen({ navigation }) {
   }, []);
 
   const addEmployee = async () => {
-    const response = await fetch('http://localhost:5000/employees', {  // Assicurati che il server backend sia in esecuzione su questa porta
+    const response = await fetch('http://localhost:5001/employees', {  // Assicurati che il server backend sia in esecuzione su questa porta
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +44,10 @@ export default function AddEmployeeScreen({ navigation }) {
     console.log(data);
 
     if (data.success) {
-      navigation.navigate('Employees');  // Naviga verso la lista dei dipendenti
+      if (refreshEmployees) {
+        refreshEmployees();
+      }
+      navigation.goBack();  // Torna alla lista dei dipendenti
     }
   };
 

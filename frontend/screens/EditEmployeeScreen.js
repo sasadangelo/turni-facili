@@ -8,14 +8,15 @@ export default function EditEmployeeScreen({ route, navigation }) {
   const [name, setName] = useState(employee.name);
   const [role, setRole] = useState(employee.role);
   const [workingHours, setWorkingHours] = useState(employee.workingHours.toString());
-  const [company, setCompany] = useState(employee.company);
+  const employeeCompanyId = employee.company?._id || employee.company;
+  const [company, setCompany] = useState(employeeCompanyId);
   const [companies, setCompanies] = useState([]);
 
   // Carica le aziende dall'API
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const response = await fetch('http://localhost:5000/companies');
+        const response = await fetch('http://localhost:5001/companies');
         const data = await response.json();
         setCompanies(data);
       } catch (error) {
@@ -33,7 +34,7 @@ export default function EditEmployeeScreen({ route, navigation }) {
       console.log("Companies available:", companies);
 
       // Controlla se l'azienda dell'impiegato è nella lista
-      const foundCompany = companies.find((c) => c._id === employee.company);
+      const foundCompany = companies.find((c) => c._id === employeeCompanyId);
       if (foundCompany) {
         setCompany(foundCompany._id);
       } else {
@@ -44,7 +45,7 @@ export default function EditEmployeeScreen({ route, navigation }) {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/employees/${employee._id}`, {
+      const response = await fetch(`http://localhost:5001/employees/${employee._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

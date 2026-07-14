@@ -1,15 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, Text, Button, View, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons'; // Per le icone
 
 export default function EmployeeListScreen({ navigation }) {
   const [employees, setEmployees] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchEmployees = async () => {
+  const fetchCompanies = async () => {
     try {
-      const response = await fetch('http://localhost:5000/employees');
+      const response = await fetch('http://localhost:5001/companies');
+      if (!response.ok) {
+        throw new Error('Failed to fetch companies');
+      }
+      const data = await response.json();
+      setCompanies(data);
+      if (data.length > 0) {
+        setSelectedCompany(data[0]._id);
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      setError('Failed to load companies');
+      setLoading(false);
+    }
+  };
+
+  const fetchEmployees = async (companyId) => {
+    try {
+      const response = await fetch(`http://localhost:5001/employees?companyId=${companyId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch employees');
       }
@@ -24,19 +47,27 @@ export default function EmployeeListScreen({ navigation }) {
   };
 
   useEffect(() => {
-    fetchEmployees();
+    fetchCompanies();
   }, []);
+
+  useEffect(() => {
+    if (selectedCompany) {
+      setLoading(true);
+      setError(null);
+      fetchEmployees(selectedCompany);
+    }
+  }, [selectedCompany]);
 
   const handleEdit = async (employeeId) => {
     try {
-      const response = await fetch(`http://localhost:5000/employees/${employeeId}`);
+      const response = await fetch(`http://localhost:5001/employees/${employeeId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch company details');
       }
       const data = await response.json();
 
       // Naviga verso lo schermo di modifica passando i dettagli della compagnia
-      navigation.navigate('EditEmployee', { employee: data, refreshEmployees: fetchEmployees });
+      navigation.navigate('EditEmployee', { employee: data, refreshEmployees: () => fetchEmployees(selectedCompany) });
 
     } catch (error) {
       console.error('Error fetching employee details:', error);
@@ -46,7 +77,7 @@ export default function EmployeeListScreen({ navigation }) {
 
   const handleDelete = async (employeeId) => {
     try {
-      const response = await fetch(`http://localhost:5000/employees/${employeeId}`, {
+      const response = await fetch(`http://localhost:5001/employees/${employeeId}`, {
         method: 'DELETE', // Metodo DELETE
       });
 
@@ -55,7 +86,7 @@ export default function EmployeeListScreen({ navigation }) {
       }
 
       // Se la richiesta è andata a buon fine, rimuoviamo l'impiegato dalla lista
-      fetchEmployees();
+      fetchEmployees(selectedCompany);
     } catch (error) {
       console.error('Error deleting employee:', error);
       setError('Failed to delete employee');
@@ -78,8 +109,21 @@ export default function EmployeeListScreen({ navigation }) {
         <Button title="Retry" onPress={() => {
           setLoading(true);
           setError(null);
-          fetchEmployees();
+          if (companies.length === 0) {
+            fetchCompanies();
+          } else {
+            fetchEmployees(selectedCompany);
+          }
         }} />
+      </View>
+    );
+  }
+
+  if (companies.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.header}>Employees</Text>
+        <Text>No companies found. Please add a company first.</Text>
       </View>
     );
   }
@@ -87,6 +131,17 @@ export default function EmployeeListScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Employees</Text>
+
+      <Text style={styles.label}>Company:</Text>
+      <Picker
+        selectedValue={selectedCompany}
+        style={styles.picker}
+        onValueChange={(itemValue) => setSelectedCompany(itemValue)}
+      >
+        {companies.map((comp) => (
+          <Picker.Item key={comp._id} label={comp.name} value={comp._id} />
+        ))}
+      </Picker>
 
       <FlatList
         data={employees}
@@ -104,7 +159,7 @@ export default function EmployeeListScreen({ navigation }) {
         )}
       />
 
-      <Button title="Add New Employee" onPress={() => navigation.navigate('AddEmployee')} />
+      <Button title="Add New Employee" onPress={() => navigation.navigate('AddEmployee', { companyId: selectedCompany, refreshEmployees: () => fetchEmployees(selectedCompany) })} />
     </View>
   );
 }
@@ -139,6 +194,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    marginBottom: 15,
   },
   deleteButton: {
     padding: 5,
